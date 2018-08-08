@@ -19,7 +19,12 @@ class ventana(QWidget):
         self.muestra()
 
     def muestra(self):
-        self.lista = [f for f in os.listdir(os.getcwd()) if f[-4:] == '.png']
+        folder = QFileDialog.getExistingDirectory()
+        if folder is not None:
+            self.folder = folder
+        else:
+            self.folder = "../procesadas"
+        self.lista = [f for f in os.listdir(folder) if f[-4:] == '.png']
         self.botnext = QPushButton('Siguiente', self)
         self.botnext.clicked.connect(partial(self.siguiente, 1))
         self.nocal = QPushButton('NoCalificar', self)
@@ -68,19 +73,23 @@ class ventana(QWidget):
         self.show()
 
     def preparar_datos(self):
-        if not os.path.exists('calificaciones.txt'):
+        pfile = os.path.join(self.folder, 'calificaciones.txt')
+        if not os.path.exists(pfile):
             self.data = pd.DataFrame(columns=['Imagen',
                                               'Filtro', 'Calificacion'])
             self.data.set_index("Imagen", inplace=True)
             self.contador = 0
         else:
-            self.data = pd.read_csv('calificaciones.txt', header=0)
+            self.data = pd.read_csv(pfile, header=0)
             self.data.set_index("Imagen", inplace=True)
             self.contador = self.lista.index(self.data.iloc[-1].name)
         print(self.data)
         print("{0} imagenes calificadas\n".format(len(self.data)))
 
     def siguiente(self, n):
+        if self.contador >= len(self.lista) - 1:
+            self.aplica()
+            return 0
         try:
             if self.viewer:
                 self.viewer.terminate()
@@ -113,7 +122,7 @@ class ventana(QWidget):
 
     def mostrar_imagen(self):
         imagen = self.lista[self.contador]
-        path = os.path.join(os.getcwd(), imagen)
+        path = os.path.join(self.folder, imagen)
         if sys.platform == 'linux':
             self.viewer = subprocess.Popen(['eog', path])
             time.sleep(1)
@@ -126,7 +135,8 @@ class ventana(QWidget):
             self.viewer = subprocess.Popen(comando + [path])
 
     def aplica(self):
-        self.data.to_csv('calificaciones.txt')
+        pfile = os.path.join(self.folder, 'calificaciones.txt')
+        self.data.to_csv(pfile)
         self.viewer.terminate()
         self.viewer.kill()
 

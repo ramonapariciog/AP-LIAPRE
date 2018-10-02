@@ -116,17 +116,18 @@ for i_f, f in enumerate(files):
         imag = gdal.Open(fpath, gdal.GA_ReadOnly)
         band = imag.GetRasterBand(1)
         conv = ConvCordinates(imag)
-        lista = [-99, -96, 20.5, 17.5]  # Popocatepetl, alrededores
         # ***********************************************************
         # nota:
         # modificar clase para quitar lo de las coordenadas limite
         # ***********************************************************
-        volcan = [-98.62253, 19.02364] # punto del Popocatepetl
-        # lista = [-104.11, -103, 20, 19]  # Colima
+        # lista = [-99, -96, 20.5, 17.5]  # Popocatepetl, alrededores
+        lista = [-104.11, -103, 20, 19]  # Colima, alrededores
+        # volcan = [-98.62253, 19.02364] # punto del Popocatepetl
+        volcan = [-103.61, 19.51]  # punto del Colima
 
         # coordenadas de volcan en imagen pixx y pixy
         pixx, pixy, cosa, mat = list(conv.locationpoint(band, lista,
-                                                        [-98.62253, 19.02364]))
+                                                        volcan))
 
         # coordenadas limite de la imagen
         coordsx, coordsy = conv.band_limits()

@@ -61,12 +61,16 @@ temporadas = [julio_octubre, noviembre_junio]
 titles = ["julio-octubre", "noviembre-junio"]
 Hs = {}
 for i, temporada in enumerate(temporadas):
-    cm = axes[i].hist2d(zonas.longitud.values[temporada],
-                        zonas.latitud.values[temporada], normed=True,
-                        bins=400, cmap=cmap_reversed, vmin=0)
     H, longitud, latitud = np.histogram2d(zonas.longitud.values[temporada],
                                           zonas.latitud.values[temporada],
-                                          bins=400, normed=True)
+                                          bins=400,
+                                          range=None, normed=None, weights=None)
+    cm = axes[i].hist2d(zonas.longitud.values[temporada],
+                        zonas.latitud.values[temporada], normed=True,
+                        bins=400, cmap=plt.cm.Purples, vmin=0, vmax=0.8)
+    # H, longitud, latitud = np.histogram2d(zonas.longitud.values[temporada],
+    #                                       zonas.latitud.values[temporada],
+    #                                       bins=400, normed=True)
     axes[i].grid(linestyle="--", color="b", linewidth=0.5, alpha=0.7)
     axes[i].scatter(volcan[0], volcan[1], marker="o", color="g", s=40)
     axes[i].set_title(titles[i], fontsize=14)
@@ -86,5 +90,8 @@ fig2.suptitle("Histogramas bidimensionales de zona con permanencia de ceniza",
               fontsize=18)
 fig2.savefig("Histogramas2D_coordenadas.png")
 plt.show()
-# plt.hist2d(zonas.longitud.values[julio_octubre], zonas.latitud.values[julio_octubre])
-# plt.hist2d(zonas.longitud.values[noviembre_junio], zonas.latitud.values[noviembre_junio])
+plt.figure()
+plt.hist2d(zonas.longitud.values[julio_octubre], zonas.latitud.values[julio_octubre])
+plt.figure()
+plt.hist2d(zonas.longitud.values[noviembre_junio], zonas.latitud.values[noviembre_junio])
+plt.show()

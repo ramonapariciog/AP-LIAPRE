@@ -6,7 +6,7 @@ from skimage import filters
 from osgeo import gdal
 import pandas as pd
 
-from ash_detect.clase_division import ConvCordinates
+from libs.clase_division import ConvCordinates
 
 def construct_mask(array, pxx, pxy, radio=200):
     """Construye zona de cercania al volcan.

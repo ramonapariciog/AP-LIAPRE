@@ -5,16 +5,20 @@ import sys
 import re
 import numpy as np
 from numpy.ma import masked_array
+from osgeo import gdal
+from osgeo import gdalconst
+from osgeo.gdalconst import *
 import matplotlib.pyplot as plt
 
-from osgeo import gdal
+driver = gdal.GetDriverByName("GTiff")
+driver.Register()
+
 
 # from matplotlib import colors
 # from skimage.filters import try_all_threshold
 from skimage.filters import (threshold_yen, threshold_isodata,
                              threshold_mean, threshold_otsu)
 from libs import ConvCordinates, morp  # , binarizacion
-
 def construct_mask(array, pxx, pxy, radio=200):
     """Construye zona de cercania al volcan.
     Parametros:
@@ -100,7 +104,8 @@ if not os.path.exists(folder_png):
 # -------------------------------------------------
 patron = r'(mod|MOD)+[\d\w]+'
 files = [f for f in os.listdir(folder)
-         if re.match(pattern=patron, string=f) and 'hdr' not in f]
+         if (re.match(pattern=patron, string=f) is not None) and (f[-3:] not in ["hdr", "hdf", "HDF", "HDR"])]
+print(files)
 # -------------------------------------------------
 
 lenfiles = len(files)
@@ -113,10 +118,10 @@ logerror = open('logerror.txt', 'w')
 for i_f, f in enumerate(files):
     try:
         fpath = os.path.join(folder, f)
-        imag = gdal.Open(fpath, gdal.GA_ReadOnly)
+        imag = gdal.Open(fpath, GA_ReadOnly)
         band = imag.GetRasterBand(1)
         conv = ConvCordinates(imag)
-        lista = [-99, -96, 20.5, 17.5]  # Popocatepetl, alrededores
+        lista = [-104.11, -103, 20, 19]  # Colima, alrededores
         # ***********************************************************
         # nota:
         # modificar clase para quitar lo de las coordenadas limite

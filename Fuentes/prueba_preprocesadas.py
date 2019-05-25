@@ -1,4 +1,3 @@
-
 """Ash detection over raster files."""
 import os
 import sys
@@ -87,11 +86,30 @@ def graficar(**kwargs):
 # para correr:
 # python preprocesamiento ../img_modis
 # python preprocesamiento /home/pr/Escritorio/proyecto_ceniza/img_modis
-if len(sys.argv) > 1:
-    folder = sys.argv[1]
-else:
-    folder = "../img_modis"
+#if len(sys.argv) > 1:
+#    folder = sys.argv[1]
+#else:
+#    folder = "../MODIS_COLIMA"
 
+ruta = 'C:/Users/CARLOS/Documents/ESIME/TESIS/MODIS_COLIMA'
+directorios1n = [f for f in os.listdir(ruta)
+                 if os.path.isdir(os.path.join(ruta, f))]
+patron = "^(MOD|mod).*B3.mB3.$"
+
+listarutas= []
+for dir1 in directorios1n:
+    concatenado = os.path.join(ruta, dir1)
+    directorios2 = os.listdir(concatenado)
+    for dir2 in directorios2:
+        concatenados2 = os.path.join(concatenado, dir2)
+        directorios3 = os.listdir(concatenados2)
+        for dir3 in directorios3:
+            concate3 = os.path.join(concatenados2, dir3)
+            if os.path.isdir(concate3):
+                imagns = [f for f in os.listdir(concate3)
+                          if re.match(pattern=patron, string=f) is not None]
+                for imag in imagns:
+                    listarutas.append(os.path.join(concate3, imag))
 # La carpeta que almacena las figuras a evaluar
 # -------------------------------------------------
 folder_png = "../procesadas"
@@ -107,27 +125,12 @@ if not os.path.exists(folder_png):
 #          if (re.match(pattern=patron, string=f) is not None) and (f[-3:] not in ["hdr", "hdf", "HDF", "HDR"])]
 # print(files)
 
-ruta = 'C:/Users/CARLOS/AP-LIAPRE/img_modis'
-directorios1n = [f for f in os.listdir(ruta)
-                 if os.path.isdir(os.path.join(ruta, f))]
-patron = "^(MOD|mod).*B3.mB3.$"
+#ruta = 'C:/Users/CARLOS/AP-LIAPRE/img_modis'
 
-listarutas = []
-for dir1 in directorios1n:
-    concatenado = os.path.join(ruta, dir1)
-    directorios2 = os.listdir(concatenado)
-    for dir2 in directorios2:
-        concatenados2 = os.path.join(concatenado, dir2)
-        directorios3 = os.listdir(concatenados2)
-        for dir3 in directorios3:
-            concate3 = os.path.join(concatenados2, dir3)
-            imagenes = [f for f in os.listdir(concate3)
-                        if re.match(pattern=patron, string=f) is not None]
-            for imag in imagenes:
-                listarutas.append(os.path.join(concate3, imag))
-
-# -------------------------------------------------
-print(listarutas)
+#
+print("Leyendo ", len(listarutas), " imagenes")
+#print("Leyendo {0} imagenes".format(tama))
+#print("Leyendo %s %s de %d imagenes"%(tama, fil, cosa))
 lenfiles = len(listarutas)
 # Guarda los mensajes de error en tiempo de ejecucion
 # --------------------------------------------------
@@ -137,8 +140,7 @@ logerror = open('logerror.txt', 'w')
 # f = files[3]
 for i_f, f in enumerate(listarutas):
     try:
-        fpath = os.path.join(folder, f)
-        imag = gdal.Open(fpath, GA_ReadOnly)
+        imag = gdal.Open(f, GA_ReadOnly)
         band = imag.GetRasterBand(1)
         conv = ConvCordinates(imag)
         # ***********************************************************
@@ -185,8 +187,15 @@ for i_f, f in enumerate(listarutas):
         params = dict(pixx=pixx, pixy=pixy, coordsx=coordsx, coordsy=coordsy,
                       flatmat=flatmat, vthre=vthre, img_binaria=img_binaria,
                       mask_rad=mask_rad, img_name=f.split("\\")[-1])
+
         graficar(**params)
         # --------------------------------------------------------------
+        # import pickle
+        # Salvar un objeto a un archivo binario
+        # pickle.dump(params, open("params.pck", "wb"))
+
+        # Leer un objeto guardado en un archivo binario
+        # params = pickle.load(open("params.pck", "rb"))
 
         print("{0} de {1}".format(i_f, lenfiles))
     except Exception as err:
